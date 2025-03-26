@@ -27,10 +27,6 @@ ERR_CARET_COLOR         = ERR_COLOR
 WARN_CARET_COLOR        = WARN_COLOR
 
 
-err_num = 1
-warn_num = 1
-
-
 
 def create_indent_string (n):
     indent = ''
@@ -42,11 +38,8 @@ def create_indent_string (n):
 
 def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
 
-    global err_num
-    global warn_num
     term_size = shutil.get_terminal_size()
     term_cols = term_size.columns
-    max_err_dig = 2
     code_indent = '     '
     msg_indent  = '     '
     type_str = ''.join([c.upper() if i == 0 else c for i,c in enumerate(type_str)])
@@ -121,9 +114,6 @@ def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
 
 def format_gcc_output (command):
     
-    global err_num
-    global warn_num
-
     # run gcc
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     output = result.stdout + result.stderr
@@ -151,9 +141,6 @@ def format_gcc_output (command):
     for err in err_jsons:
 
         msg_dict = json.loads(err)
-
-        err_num = 1
-        warn_num = 1
 
         for msg in msg_dict:
 
