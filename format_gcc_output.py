@@ -131,7 +131,7 @@ def format_gcc_output (command):
     # get start, end of json
     i = output.find('[{')
     if i == -1:
-        print ("No error messages found\n")
+        print ("No error messages\n")
         sys.exit(1)
     j = output.rindex("}]")
 
