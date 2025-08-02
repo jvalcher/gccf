@@ -1,18 +1,26 @@
+#!/usr/bin/python
+
+gcc_cmd = 'g++ -Wall -Wextra -fdiagnostics-format=json test2.cpp'
+
+##############
+
 import subprocess
 import sys
 import json
 import textwrap
 import re
 import shutil
-from colors import *
 
+B_MAX_RED       = "\033[1;91m"
+B_MAX_PURPLE    = "\033[1;95m"
+B_MAX_CYAN      = "\033[1;96m"
+B_MAX_GREEN     = "\033[1;92m"
+B_MAX_YELLOW    = "\033[1;93m"
+B_MAX_BLUE      = "\033[1;94m"
+CYAN            = "\033[0;36m"
+YELLOW          = "\033[0;33m"
+RESET           = "\033[0m"
 
-
-'''
-    Element colors
-    -------
-    See ./colors.py
-'''
 ERR_COLOR               = B_MAX_RED
 WARN_COLOR              = B_MAX_PURPLE
 MISC_COLOR              = B_MAX_CYAN
@@ -26,17 +34,16 @@ WARN_CODE_PROMPT_COLOR  = WARN_COLOR
 ERR_CARET_COLOR         = ERR_COLOR
 WARN_CARET_COLOR        = WARN_COLOR
 
-
-
 def create_indent_string (n):
     indent = ''
     for _ in range(n):
         indent = ' ' + indent
     return indent
 
-
-
 def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
+    '''
+    Print error, warning message
+    '''
 
     term_size = shutil.get_terminal_size()
     term_cols = term_size.columns
@@ -110,9 +117,13 @@ def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
         print (caret)
         print ("")
 
-
-
 def format_gcc_output (command):
+    '''
+    Format GCC compiler errors from '-fdiagnostics-format=json' flag
+    -------
+    Returns 1 if errors found
+    Returns 0 if no error found
+    '''
     
     # run gcc
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
@@ -122,7 +133,7 @@ def format_gcc_output (command):
     i = output.find('[{')
     if i == -1:
         print ("No error messages\n")
-        sys.exit(1)
+        return 0                        # no errors found
     j = output.rindex("}]")
 
     # get json string
@@ -163,3 +174,7 @@ def format_gcc_output (command):
                 caret_cols = min(caret_cols_list)
                 print_error ("location", msg['message'], type_str, file_path, line_number, caret_cols)
 
+    return 0
+
+if __name__ == "__main__":
+    format_gcc_output(gcc_cmd)
