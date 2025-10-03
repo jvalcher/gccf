@@ -30,7 +30,7 @@ $ ./gccf.py     # uses /usr/bin/python
 
 ## Color configuration
 
-Personalize the colors at the top of `gccf.py`. More colors are available in `colors.py`.<br>
+Personalize the colors at the top of `gccf.py`.<br>
 
 ## Development
 
