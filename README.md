@@ -18,11 +18,11 @@ command = 'g++ -Wall -Wextra -fdiagnostics-format=json test2.cpp'
 format_gcc_output (command)
 ```
 
-### As bash script
-Edit the `gcc_cmd` string at the top of `gccf.py` as needed and run.
+### As replacement command for `gcc`
 
 ```bash
-$ ./gccf.py     # uses /usr/bin/python
+$ cp gccf.py ~/.local/bin/gcf
+$ gcf -Wall -Wextra a.out
 ```
 
 ## Color configuration
