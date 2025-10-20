@@ -20,6 +20,8 @@ format_gcc_output (command)
 
 ### As replacement command for `gcc`
 
+Make sure that the shebang path at the top of the script points to your python's location.
+
 ```bash
 $ cp gccf.py ~/.local/bin/gcf
 $ gcf -Wall -Wextra -o my_app main.c
