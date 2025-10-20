@@ -1,9 +1,5 @@
 #!/usr/bin/python
 
-gcc_cmd = 'g++ -Wall -Wextra -fdiagnostics-format=json test2.cpp'
-
-##############
-
 import subprocess
 import sys
 import json
@@ -211,4 +207,7 @@ def format_gcc_output (command):
     return 0
 
 if __name__ == "__main__":
-    format_gcc_output(gcc_cmd)
+    args = sys.argv[1:]
+    args_str = " ".join(args)
+    cmd = f'gcc -fdiagnostics-format=json {args_str}'
+    format_gcc_output(cmd);
