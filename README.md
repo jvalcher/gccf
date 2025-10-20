@@ -22,7 +22,7 @@ format_gcc_output (command)
 
 ```bash
 $ cp gccf.py ~/.local/bin/gcf
-$ gcf -Wall -Wextra a.out
+$ gcf -Wall -Wextra -o my_app main.c
 ```
 
 ## Color configuration
