@@ -23,8 +23,8 @@ format_gcc_output (command)
 Make sure that the shebang path at the top of the script points to your python's location.
 
 ```bash
-$ cp gccf.py ~/.local/bin/gcf
-$ gcf -Wall -Wextra -o my_app main.c
+$ cp gccf.py ~/.local/bin/gccf
+$ gccf -Wall -Wextra -o my_app main.c
 ```
 
 ## Color configuration
