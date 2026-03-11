@@ -1,5 +1,6 @@
 
-# GCC error formatter
+# gccf
+GCC error formatter
 
 <img src='formatted_output.png' height='350px'>
 
