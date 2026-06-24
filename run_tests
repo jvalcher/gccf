@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 
 from gccf import format_gcc_output
 
