@@ -1,7 +1,6 @@
-#!/bin/python
+#!/bin/python3
 
 from gccf import format_gcc_output
-
 
 command = 'g++ -Wall -Wextra -fdiagnostics-format=json test2.cpp'
 format_gcc_output (command)

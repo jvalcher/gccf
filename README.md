@@ -1,36 +1,27 @@
 
 # gccf
+
 GCC error formatter
 
 <img src='formatted_output.png' height='350px'>
 
+
 ## Overview
 
-- Uses the `-fdiagnostics-format=json` flag
-- Works with Make et al. as long as the only `[{` JSON object `}]` in the output is GCC's
+This script parses the data output from `gcc`'s `-fdiagnostics-format=json` flag. It works with `make` and possibly other builders as long as the only `[{` JSON object `}]` in its input is `gcc`'s.
+
 
 ## Usage
 
-### As import
-
-```python
-from gccf import format_gcc_output
-command = 'g++ -Wall -Wextra -fdiagnostics-format=json test2.cpp'
-format_gcc_output (command)
-```
-
-### As replacement command for `gcc`
-
-Make sure that the shebang path at the top of the script points to your python's location.
+Make sure that the shell shebang path at the top of the script points to your Python interpreter's location.
 
 ```bash
 $ cp gccf.py ~/.local/bin/gccf
 $ gccf -Wall -Wextra -o my_app main.c
 ```
 
-## Color configuration
+See the `run_tests` shell script for an example of how to import the core function.
 
-Personalize the colors at the top of `gccf.py`.<br>
 
 ## Development
 

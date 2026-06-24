@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import subprocess
 import sys
@@ -151,8 +151,8 @@ def format_gcc_output (command):
     '''
     Format GCC compiler errors from '-fdiagnostics-format=json' flag
     -------
-    Returns 1 if errors found
-    Returns 0 if no error found
+    Exits 0 if no errors found
+    Exits 1 if errors found
     '''
     
     # run gcc
@@ -162,8 +162,8 @@ def format_gcc_output (command):
     # get start, end of json
     i = output.find('[{')
     if i == -1:
-        print ("No error messages\n")
-        return 0                        # no errors found
+        #print ("No error messages\n")
+        sys.exit(0)
     j = output.rindex("}]")
 
     # get json string
@@ -204,10 +204,11 @@ def format_gcc_output (command):
                 caret_cols = min(caret_cols_list)
                 print_error ("location", msg['message'], type_str, file_path, line_number, caret_cols)
 
-    return 0
+    sys.exit(1)
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     args_str = " ".join(args)
     cmd = f'gcc -fdiagnostics-format=json {args_str}'
     format_gcc_output(cmd);
+
