@@ -13,19 +13,25 @@ This script parses the data output from `gcc`'s `-fdiagnostics-format=json` flag
 
 ## Usage
 
-Make sure that the shell shebang path at the top of the script points to your Python interpreter's location.
+Make sure that the shebang path at the top of the script points to your Python interpreter's location.
 
-```bash
+```shell
+#!/usr/bin/python3
+```
+
+Copy the script to your PATH.
+
+```shell
 $ cp gccf.py ~/.local/bin/gccf
 $ gccf -Wall -Wextra -o my_app main.c
 ```
 
-See the `run_tests` shell script for an example of how to import the core function.
+See the `build_test_files_gccf` script for an example of how to import the core function into your own Python script.
 
 
 ## Development
 
-```bash
-$ ./run_tests
-$ ./get_unformatted_errors
+```shell
+$ ./build_test_files_gccf
+$ ./build_test_files_gcc
 ```
