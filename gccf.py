@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+'''
+gccf - GCC error formatter
+Author: jvalcher
+License: MIT
+'''
+
 import subprocess
 import sys
 import json
