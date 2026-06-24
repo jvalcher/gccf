@@ -3,6 +3,7 @@
 '''
 gccf - GCC error formatter
 Author: jvalcher
+URL: https://github.com/jvalcher/gccf
 License: MIT
 '''
 
