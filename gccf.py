@@ -124,20 +124,18 @@ def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
 def format_gcc_output (command):
     '''
     Format GCC compiler errors from '-fdiagnostics-format=json' flag
-    -------
-    Exits 0 if no errors found
-    Exits 1 if errors found
     '''
     
     # run gcc
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     output = result.stdout + result.stderr
+    status = result.returncode
 
     # get start, end of json
     i = output.find('[{')
     if i == -1:
         #print ("No error messages\n")
-        sys.exit(0)
+        sys.exit(status)
     j = output.rindex("}]")
 
     # get json string
@@ -178,7 +176,7 @@ def format_gcc_output (command):
                 caret_cols = min(caret_cols_list)
                 print_error ("location", msg['message'], type_str, file_path, line_number, caret_cols)
 
-    sys.exit(1)
+    sys.exit(status)
 
 if __name__ == "__main__":
     args = sys.argv[1:]
