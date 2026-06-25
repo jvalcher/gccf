@@ -121,60 +121,57 @@ def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
         print (caret)
         print ("")
 
-def format_gcc_output (command):
+def format_gcc_output(command):
     '''
-    Format GCC compiler errors from '-fdiagnostics-format=json' flag
+    Format GCC compiler errors from '-fdiagnostics-format=json' flag.
+    Also prints non-JSON diagnostics (e.g. ld, collect2).
     '''
-    
-    # run gcc
+
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     output = result.stdout + result.stderr
     status = result.returncode
 
-    # get start, end of json
-    i = output.find('[{')
-    if i == -1:
-        #print ("No error messages\n")
-        sys.exit(status)
-    j = output.rindex("}]")
+    print()
 
-    # get json string
-    json_str = output[i:j+2]
+    for line in output.splitlines():
 
-    # split json error [{ objects }] into separate strings
-    bracket_splits = json_str.split("\n[]\n")
-    err_jsons = []
-    for split in bracket_splits:
-        splits = split.split('\n')
-        for s in splits:
-            err_jsons.append(s)
+        line = line.strip()
 
-    print ("")
+        if not line or line == "[]":
+            continue
 
-    for err in err_jsons:
+        # JSON diagnostics from GCC
+        if line.startswith("[{"):
 
-        msg_dict = json.loads(err)
+            for msg in json.loads(line):
 
-        for msg in msg_dict:
+                type_str = msg["kind"]
+                file_path = ""
+                line_number = 0
+                caret_cols = []
 
-            type_str = msg['kind']
-            file_path = ''
-            line_number = 0
-            caret_cols_list = []
-            caret_cols = 0
-            caret_indent = ''
+                for loc in msg["locations"]:
+                    caret = loc.get("caret")
+                    if caret is None:
+                        continue
 
-            for loc in msg['locations']:
+                    file_path = caret.get("file")
+                    line_number = caret.get("line")
+                    caret_cols.append(caret.get("column"))
 
-                if 'caret' in loc:
-                    caret = loc['caret']
-                    file_path = caret.get('file')
-                    line_number = caret.get('line')
-                    caret_cols_list.append(caret.get('column'))
+                if caret_cols:
+                    print_error(
+                        "location",
+                        msg["message"],
+                        type_str,
+                        file_path,
+                        line_number,
+                        min(caret_cols)
+                    )
 
-            if len(caret_cols_list) > 0:
-                caret_cols = min(caret_cols_list)
-                print_error ("location", msg['message'], type_str, file_path, line_number, caret_cols)
+        # Linker/assembler/etc. diagnostics
+        else:
+            print(line)
 
     sys.exit(status)
 
