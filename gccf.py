@@ -15,21 +15,22 @@ import re
 import shutil
 
 ### Colors
-RESET        = "\033[0m"
-CYAN         = "\033[0;36m"
-YELLOW       = "\033[0;33m"
-B_MAX_BLUE   = "\033[1;94m"
-B_MAX_CYAN   = "\033[1;96m"
-B_MAX_GREEN  = "\033[1;92m"
-B_MAX_PURPLE = "\033[1;95m"
-B_MAX_RED    = "\033[1;91m"
-B_MAX_YELLOW = "\033[1;93m"
+RESET = "\033[0m"
+RED = "\033[38;2;232;135;149m"
+GREEN  = "\033[38;2;100;185;100m"
+YELLOW = "\033[38;2;185;165;55m"
+PURPLE = "\033[38;2;185;145;220m"
+CYAN = "\033[0;36m"
+B_MAX_BLUE = "\033[1;94m"
+B_MAX_CYAN = "\033[1;96m"
+B_MAX_RED = "\033[1;91m"
+YELLOW_GOLD  = "\033[38;2;210;170;40m"
 
-ERR_COLOR              = B_MAX_RED
-WARN_COLOR             = B_MAX_PURPLE
+ERR_COLOR              = RED
+WARN_COLOR             = PURPLE
 MISC_COLOR             = B_MAX_CYAN
-FILE_PATH_COLOR        = B_MAX_GREEN
-LINE_NUM_COLOR         = B_MAX_YELLOW
+FILE_PATH_COLOR        = GREEN
+LINE_NUM_COLOR         = YELLOW_GOLD
 MSG_PROMPT_COLOR       = B_MAX_BLUE
 MSG_COLOR              = CYAN
 MSG_STR_COLOR          = YELLOW
