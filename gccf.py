@@ -129,6 +129,8 @@ def format_gcc_output(command):
     if result.stdout:
         print(result.stdout, end="")
 
+    printed = False
+
     try:
         sarif = json.loads(result.stderr)
     except json.JSONDecodeError:
@@ -139,6 +141,10 @@ def format_gcc_output(command):
     for run in sarif["runs"]:
         for result in run["results"]:
 
+            if not printed:
+                print()
+                printed = True
+
             level = result.get("level", "note")
             message = result["message"]["text"]
 
@@ -147,24 +153,30 @@ def format_gcc_output(command):
             start_col = 1
             end_col = 1
 
-            if result.get("locations"):
-                physical = result["locations"][0]["physicalLocation"]
-                region = physical["region"]
+            locations = result.get("locations", [])
+            if locations:
+                physical = locations[0].get("physicalLocation")
+                if physical:
+                    artifact = physical.get("artifactLocation", {})
+                    region = physical.get("region", {})
 
-                file_path = physical["artifactLocation"]["uri"]
-                line_number = region["startLine"]
-                start_col = region.get("startColumn", 1)
-                end_col = region.get("endColumn", start_col + 1)
+                    file_path = artifact.get("uri", "")
+                    line_number = region.get("startLine", 0)
+                    start_col = region.get("startColumn", 1)
+                    end_col = region.get("endColumn", start_col + 1)
 
-            print_error(
-                "location",
-                message,
-                level,
-                file_path,
-                line_number,
-                start_col,
-                end_col
-            )
+            if file_path:
+                print_error(
+                    "location",
+                    message,
+                    level,
+                    file_path,
+                    line_number,
+                    start_col,
+                    end_col
+                )
+            else:
+                print(f"{level.capitalize()}: {message}")
 
     sys.exit(status)
 
