@@ -8,6 +8,5 @@ format_gcc_output (command)
 print ("----------------")
 
 command = 'gcc -Wall -Wextra -fdiagnostics-format=sarif-stderr test1.c'
-print(command)
 format_gcc_output (command)
 
