@@ -45,126 +45,116 @@ def create_indent_string (n):
         indent = ' ' + indent
     return indent
 
-def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
-    '''
-    Print error, warning message
-    '''
+def print_error(node_type, msg, type_str, file_path, line_number, start_col, end_col):
 
-    term_size = shutil.get_terminal_size()
-    term_cols = term_size.columns
-    code_indent = '     '
-    msg_indent  = '     '
-    type_str = ''.join([c.upper() if i == 0 else c for i,c in enumerate(type_str)])
-    err_buff = ''
-    msg_num = -1
+    term_cols = shutil.get_terminal_size().columns
+    code_indent = "     "
+    msg_indent = "     "
+    prompt = ">>>  "
+
+    type_str = type_str.capitalize()
+
     TYPE_COLOR = MISC_COLOR
+    CODE_PROMPT_COLOR = MISC_COLOR
+    CARET_COLOR = MISC_COLOR
 
-    if node_type == "location" or (node_type == "child" and type_str == "note"):
+    if type_str == "Error":
+        TYPE_COLOR = ERR_COLOR
+        CODE_PROMPT_COLOR = ERR_CODE_PROMPT_COLOR
+        CARET_COLOR = ERR_CARET_COLOR
+        err_buff = " " * (len("Warning") - len("Error"))
+    elif type_str == "Warning":
+        TYPE_COLOR = WARN_COLOR
+        CODE_PROMPT_COLOR = WARN_CODE_PROMPT_COLOR
+        CARET_COLOR = WARN_CARET_COLOR
+        err_buff = ""
+    else:
+        err_buff = " " * (len("Warning") - len(type_str) + 2)
 
-        # <error type>: <file path>: <line number>
-        if type_str == 'Error':
-            TYPE_COLOR = ERR_COLOR
-            err_buff = create_indent_string (len('Warning') - len('Error'))
-            err_buff = create_indent_string (len(err_buff))
-        elif type_str == 'Warning':
-            TYPE_COLOR = WARN_COLOR
-            err_buff = create_indent_string (0)
-        else:
-            err_buff = create_indent_string (len('Warning') - len(type_str))
-            err_buff = create_indent_string (len(err_buff) + 2)
-        error = f"{err_buff}{TYPE_COLOR}{type_str}{RESET}:  {FILE_PATH_COLOR}{file_path}{RESET} : {LINE_NUM_COLOR}{line_number}{RESET}"
+    if node_type != "location" and not (node_type == "child" and type_str == "Note"):
+        return
 
-        # message
-        prompt = ">>>  "
-        msg_str = ''.join([c.upper() if i == 0 else c for i,c in enumerate(msg)])
-        msg_str = f"{MSG_PROMPT_COLOR}{prompt}{MSG_COLOR}{msg_str}{RESET}"
-        msg_str = textwrap.fill (msg_str, initial_indent=msg_indent, subsequent_indent= msg_indent + f"{'': <{len(prompt)}}", width=term_cols)
-        msg_str = re.sub (r"‘([^‘]*)’", rf"‘{MSG_STR_COLOR}\1{RESET}{MSG_COLOR}’", msg_str)
+    error = f"{err_buff}{TYPE_COLOR}{type_str}{RESET}:  {FILE_PATH_COLOR}{file_path}{RESET} : {LINE_NUM_COLOR}{line_number}{RESET}"
 
-        # line of code
-        code_line = ''
-        stripped_spaces = 0
-        line_found = False
-        CODE_PROMPT_COLOR = MISC_COLOR
-        if type_str == 'Warning':
-            CODE_PROMPT_COLOR = WARN_CODE_PROMPT_COLOR
-        elif type_str == 'Error':
-            CODE_PROMPT_COLOR = ERR_CODE_PROMPT_COLOR
-        try:
-            with open(file_path, 'r') as file:
-                for current_line_number, line in enumerate(file, start=1):
-                    if current_line_number == line_number:
-                        orig_code_line = line
-                        code_line = orig_code_line.lstrip()
-                        stripped_spaces = len(orig_code_line) - len(code_line)
-                        line_found = True
-                        break
-        except FileNotFoundError:
-            code_line = f"Unable to find \"{file_path}\""
-        if line_found is False:
-            code_line = f"Unable to find line number {line_number} in \"{file_path}\""
-        code_line = code_indent + f"{CODE_PROMPT_COLOR}{prompt}{RESET}" + code_line.rstrip('\n')
+    msg = msg[:1].upper() + msg[1:]
+    msg = f"{MSG_PROMPT_COLOR}{prompt}{MSG_COLOR}{msg}{RESET}"
+    msg = textwrap.fill(
+        msg,
+        initial_indent=msg_indent,
+        subsequent_indent=msg_indent + " " * len(prompt),
+        width=term_cols
+    )
+    msg = re.sub(r"‘([^‘]*)’", rf"‘{MSG_STR_COLOR}\1{RESET}{MSG_COLOR}’", msg)
 
-        # caret
-        CARET_COLOR = MISC_COLOR
-        if type_str == 'Warning':
-            CARET_COLOR = WARN_CARET_COLOR
-        elif type_str == 'Error':
-            CARET_COLOR = ERR_CARET_COLOR
-        caret_indent = create_indent_string (caret_cols - stripped_spaces - 2)
-        if len(caret_indent) == 0:
-            code_indent = code_indent[1:]
-        caret = code_indent + caret_indent + f'{"": <{len(prompt)}}' + f'{CARET_COLOR}⤴{RESET}'
+    code_line = ""
+    stripped_spaces = 0
 
-        print (error)
-        print (msg_str)
-        print (code_line)
-        print (caret)
-        print ("")
+    try:
+        with open(file_path) as f:
+            for lineno, line in enumerate(f, start=1):
+                if lineno == line_number:
+                    stripped_spaces = len(line) - len(line.lstrip())
+                    code_line = line.lstrip().rstrip("\n")
+                    break
+                else:
+                    code_line = f'Unable to find line {line_number} in "{file_path}"'
+    except FileNotFoundError:
+        code_line = f'Unable to find "{file_path}"'
+
+    print(error)
+    print(msg)
+
+    print(code_indent + f"{CODE_PROMPT_COLOR}{prompt}{RESET}" + code_line)
+
+    start = max(1, start_col - stripped_spaces)
+    end = max(start, end_col - stripped_spaces)
+
+    caret = (
+        code_indent +
+        " " * len(prompt) +
+        " " * (start - 1) +
+        CARET_COLOR +
+        "^" * max(1, end - start) +
+        RESET
+    )
+
+    print(caret)
+    print()
 
 def format_gcc_output(command):
-    '''
-    Format GCC compiler errors from '-fdiagnostics-format=sarif-stderr'.
-    Also prints non-SARIF diagnostics (e.g. ld, collect2).
-    '''
 
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     status = result.returncode
 
-    print()
-
-    stderr = result.stderr
-    stdout = result.stdout
-
-    if stdout:
-        print(stdout, end='')
+    if result.stdout:
+        print(result.stdout, end="")
 
     try:
-        sarif = json.loads(stderr)
+        sarif = json.loads(result.stderr)
     except json.JSONDecodeError:
-        if stderr:
-            print(stderr, end='')
+        if result.stderr:
+            print(result.stderr, end="")
         sys.exit(status)
 
-    for run in sarif.get("runs", []):
-        for result in run.get("results", []):
+    for run in sarif["runs"]:
+        for result in run["results"]:
 
-            level = result.get("level", "note").capitalize()
-            message = result.get("message", {}).get("text", "")
+            level = result.get("level", "note")
+            message = result["message"]["text"]
 
             file_path = ""
             line_number = 0
-            caret_col = 1
+            start_col = 1
+            end_col = 1
 
-            locations = result.get("locations", [])
-            if locations:
-                physical = locations[0].get("physicalLocation", {})
-                artifact = physical.get("artifactLocation", {})
-                region = physical.get("region", {})
+            if result.get("locations"):
+                physical = result["locations"][0]["physicalLocation"]
+                region = physical["region"]
 
-                file_path = artifact.get("uri", "")
-                line_number = region.get("startLine", 0)
-                caret_col = region.get("startColumn", 1)
+                file_path = physical["artifactLocation"]["uri"]
+                line_number = region["startLine"]
+                start_col = region.get("startColumn", 1)
+                end_col = region.get("endColumn", start_col + 1)
 
             print_error(
                 "location",
@@ -172,7 +162,8 @@ def format_gcc_output(command):
                 level,
                 file_path,
                 line_number,
-                caret_col
+                start_col,
+                end_col
             )
 
     sys.exit(status)
