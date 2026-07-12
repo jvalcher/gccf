@@ -133,18 +133,15 @@ def format_gcc_output(command):
 
     print()
 
-    # GCC writes SARIF to stderr.
     stderr = result.stderr
     stdout = result.stdout
 
-    # Print normal stdout (if any)
     if stdout:
         print(stdout, end='')
 
     try:
         sarif = json.loads(stderr)
     except json.JSONDecodeError:
-        # Probably linker/assembler output rather than SARIF.
         if stderr:
             print(stderr, end='')
         sys.exit(status)
