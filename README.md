@@ -8,7 +8,7 @@ GCC error formatter
 
 ## Overview
 
-This script parses the data output from `gcc`'s `-fdiagnostics-format=sarif-stderr` flag and outputs easily readable errors messages.
+This script parses the output from `gcc`'s `-fdiagnostics-format=sarif-stderr` flag and outputs easy-to-read error messages.
 
 
 ## Usage
