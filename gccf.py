@@ -124,61 +124,65 @@ def print_error (node_type, msg, type_str, file_path, line_number, caret_cols):
 
 def format_gcc_output(command):
     '''
-    Format GCC compiler errors from '-fdiagnostics-format=json' flag.
-    Also prints non-JSON diagnostics (e.g. ld, collect2).
+    Format GCC compiler errors from '-fdiagnostics-format=sarif-stderr'.
+    Also prints non-SARIF diagnostics (e.g. ld, collect2).
     '''
 
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    output = result.stdout + result.stderr
     status = result.returncode
 
     print()
 
-    for line in output.splitlines():
+    # GCC writes SARIF to stderr.
+    stderr = result.stderr
+    stdout = result.stdout
 
-        line = line.strip()
+    # Print normal stdout (if any)
+    if stdout:
+        print(stdout, end='')
 
-        if not line or line == "[]":
-            continue
+    try:
+        sarif = json.loads(stderr)
+    except json.JSONDecodeError:
+        # Probably linker/assembler output rather than SARIF.
+        if stderr:
+            print(stderr, end='')
+        sys.exit(status)
 
-        # JSON diagnostics from GCC
-        if line.startswith("[{"):
+    for run in sarif.get("runs", []):
+        for result in run.get("results", []):
 
-            for msg in json.loads(line):
+            level = result.get("level", "note").capitalize()
+            message = result.get("message", {}).get("text", "")
 
-                type_str = msg["kind"]
-                file_path = ""
-                line_number = 0
-                caret_cols = []
+            file_path = ""
+            line_number = 0
+            caret_col = 1
 
-                for loc in msg["locations"]:
-                    caret = loc.get("caret")
-                    if caret is None:
-                        continue
+            locations = result.get("locations", [])
+            if locations:
+                physical = locations[0].get("physicalLocation", {})
+                artifact = physical.get("artifactLocation", {})
+                region = physical.get("region", {})
 
-                    file_path = caret.get("file")
-                    line_number = caret.get("line")
-                    caret_cols.append(caret.get("column"))
+                file_path = artifact.get("uri", "")
+                line_number = region.get("startLine", 0)
+                caret_col = region.get("startColumn", 1)
 
-                if caret_cols:
-                    print_error(
-                        "location",
-                        msg["message"],
-                        type_str,
-                        file_path,
-                        line_number,
-                        min(caret_cols)
-                    )
-
-        # Linker/assembler/etc. diagnostics
-        else:
-            print(line)
+            print_error(
+                "location",
+                message,
+                level,
+                file_path,
+                line_number,
+                caret_col
+            )
 
     sys.exit(status)
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     args_str = " ".join(args)
-    cmd = f'gcc -fdiagnostics-format=json {args_str}'
+    cmd = f'gcc -fdiagnostics-format=sarif-stderr {args_str}'
     format_gcc_output(cmd);
 

@@ -2,11 +2,12 @@
 
 from gccf import format_gcc_output
 
-command = 'g++ -Wall -Wextra -fdiagnostics-format=json test2.cpp'
+command = 'g++ -Wall -Wextra -fdiagnostics-format=sarif-stderr test2.cpp'
 format_gcc_output (command)
 
 print ("----------------")
 
-command = 'gcc -Wall -Wextra -fdiagnostics-format=json test1.c'
+command = 'gcc -Wall -Wextra -fdiagnostics-format=sarif-stderr test1.c'
+print(command)
 format_gcc_output (command)
 

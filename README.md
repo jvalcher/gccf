@@ -8,21 +8,22 @@ GCC error formatter
 
 ## Overview
 
-This script parses the data output from `gcc`'s `-fdiagnostics-format=json` flag. It works with `make` and possibly other builders as long as the only `[{` JSON object `}]` in its input is `gcc`'s.
+This script parses the data output from `gcc`'s `-fdiagnostics-format=sarif-stderr` flag and outputs easily readable errors messages.
 
 
 ## Usage
 
-Make sure that the shebang path at the top of the script points to your Python interpreter's location.
+For use as a Linux shell command, make sure that the shebang path at the top of the script points to your Python interpreter's location.
 
-```shell
+```sh
 #!/usr/bin/python3
 ```
 
-Copy the script to your PATH.
+Then just copy the script to your `PATH`.
 
-```shell
+```sh
 $ cp gccf.py ~/.local/bin/gccf
+
 $ gccf -Wall -Wextra -o my_app main.c
 ```
 
@@ -31,7 +32,7 @@ See the `build_test_files_gccf` script for an example of how to import the core 
 
 ## Development
 
-```shell
+```sh
 $ ./build_test_files_gccf
 $ ./build_test_files_gcc
 ```
