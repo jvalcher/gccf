@@ -1,14 +1,14 @@
 
 # gccf
 
-GCC error formatter
+`GCC` error formatter
 
 <img src='formatted_output.png' height='350px'>
 
 
 ## Overview
 
-This script parses the output from `gcc`'s `-fdiagnostics-format=sarif-stderr` flag and outputs easy-to-read error messages.
+This script parses the output from `GCC`'s `-fdiagnostics-format=sarif-stderr` flag and outputs easy-to-read error messages.
 
 
 ## Usage
