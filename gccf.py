@@ -14,6 +14,8 @@ import textwrap
 import re
 import shutil
 
+result_count_max = 999
+
 ### Colors
 RESET = "\033[0m"
 RED = "\033[38;2;232;135;149m"
@@ -138,9 +140,16 @@ def format_gcc_output(command):
             print(result.stderr, end="")
         sys.exit(status)
 
+
     for run in sarif["runs"]:
+
+        result_count = 1;
+
         for result in run["results"]:
 
+            if result_count > result_count_max:
+                break;
+            
             if not printed:
                 print()
                 printed = True
@@ -177,6 +186,8 @@ def format_gcc_output(command):
                 )
             else:
                 print(f"{level.capitalize()}: {message}")
+
+            result_count += 1
 
     sys.exit(status)
 
