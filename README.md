@@ -13,7 +13,7 @@ This script parses the output from `GCC`'s `-fdiagnostics-format=sarif-stderr` f
 
 ## Usage
 
-As of this time, the `GCC` flag `-fmax-errors=n` does not work properly when using `-fdiagnostics-format` (bug report filed) so for now set the `result_count_max` variable at the top of the script if needed.<br>
+As of this time, the `GCC` flag `-fmax-errors=n` does not work properly when using `-fdiagnostics-format` ([bug report](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=126224)) so for now set the `result_count_max` variable at the top of the script if needed.<br>
 <br>
 For use as a Linux shell command, make sure that the shebang path at the top of the script points to your Python interpreter's location.
 
