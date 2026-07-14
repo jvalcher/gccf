@@ -14,7 +14,7 @@ import textwrap
 import re
 import shutil
 
-result_count_max = 999
+result_count_max = 8
 
 ### Colors
 RESET = "\033[0m"
@@ -134,20 +134,15 @@ def format_gcc_output(command):
     printed = False
 
     try:
-        sarif = json.loads(result.stderr)
+        decoder = json.JSONDecoder()
+        sarif, end = decoder.raw_decode(result.stderr)
+        stderr_extra = result.stderr[end:].lstrip()
     except json.JSONDecodeError:
         if result.stderr:
             print(result.stderr, end="")
-
-        if m:
-            symbol = m.group(1)
-            print(f"Linker error: undefined reference to '{symbol}'")
-        elif result.stderr:
-            print(result.stderr, end="")
-
         sys.exit(status)
 
-    result_count = 1;
+    result_count = 1
 
     for run in sarif["runs"]:
 
@@ -155,7 +150,7 @@ def format_gcc_output(command):
 
             if result_count > result_count_max:
                 sys.exit(status)
-            
+
             if not printed:
                 print()
                 printed = True
@@ -194,6 +189,9 @@ def format_gcc_output(command):
                 print(f"{level.capitalize()}: {message}")
 
             result_count += 1
+
+    if stderr_extra:
+        print(stderr_extra, end="")
 
     sys.exit(status)
 
