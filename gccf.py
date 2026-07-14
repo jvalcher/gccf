@@ -138,17 +138,23 @@ def format_gcc_output(command):
     except json.JSONDecodeError:
         if result.stderr:
             print(result.stderr, end="")
+
+        if m:
+            symbol = m.group(1)
+            print(f"Linker error: undefined reference to '{symbol}'")
+        elif result.stderr:
+            print(result.stderr, end="")
+
         sys.exit(status)
 
+    result_count = 1;
 
     for run in sarif["runs"]:
-
-        result_count = 1;
 
         for result in run["results"]:
 
             if result_count > result_count_max:
-                break;
+                sys.exit(status)
             
             if not printed:
                 print()
